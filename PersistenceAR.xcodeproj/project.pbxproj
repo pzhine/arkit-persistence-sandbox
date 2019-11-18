@@ -17,6 +17,7 @@
 		DA3E42CF23661C9E001A6C2D /* WorldData.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA3E42CE23661C9E001A6C2D /* WorldData.swift */; };
 		DA3E42D123661EF7001A6C2D /* WorldDoc.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA3E42D023661EF7001A6C2D /* WorldDoc.swift */; };
 		DA3E42D3236627B8001A6C2D /* WorldDatabase.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA3E42D2236627B8001A6C2D /* WorldDatabase.swift */; };
+		DAFF1E7C2367090100C8FB30 /* WorldDocTableMaster.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAFF1E7B2367090100C8FB30 /* WorldDocTableMaster.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -34,6 +35,7 @@
 		DA3E42CE23661C9E001A6C2D /* WorldData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorldData.swift; sourceTree = "<group>"; };
 		DA3E42D023661EF7001A6C2D /* WorldDoc.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorldDoc.swift; sourceTree = "<group>"; };
 		DA3E42D2236627B8001A6C2D /* WorldDatabase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorldDatabase.swift; sourceTree = "<group>"; };
+		DAFF1E7B2367090100C8FB30 /* WorldDocTableMaster.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorldDocTableMaster.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -66,6 +68,7 @@
 		8DE02F0820CB513200BBF854 /* PersistenceAR */ = {
 			isa = PBXGroup;
 			children = (
+				DAFF1E7A236708C800C8FB30 /* Controllers */,
 				DA3E42CD23661C88001A6C2D /* World */,
 				8DE02F0920CB513200BBF854 /* AppDelegate.swift */,
 				8DE02F0B20CB513200BBF854 /* art.scnassets */,
@@ -89,6 +92,14 @@
 				DA3E42D2236627B8001A6C2D /* WorldDatabase.swift */,
 			);
 			path = World;
+			sourceTree = "<group>";
+		};
+		DAFF1E7A236708C800C8FB30 /* Controllers */ = {
+			isa = PBXGroup;
+			children = (
+				DAFF1E7B2367090100C8FB30 /* WorldDocTableMaster.swift */,
+			);
+			path = Controllers;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -164,6 +175,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DAFF1E7C2367090100C8FB30 /* WorldDocTableMaster.swift in Sources */,
 				DA3E42CF23661C9E001A6C2D /* WorldData.swift in Sources */,
 				DA3E42D3236627B8001A6C2D /* WorldDatabase.swift in Sources */,
 				DA3E42D123661EF7001A6C2D /* WorldDoc.swift in Sources */,
@@ -246,7 +258,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -300,7 +312,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;

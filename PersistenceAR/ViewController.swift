@@ -13,12 +13,26 @@ import ARKit
 class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
 
     @IBOutlet var sceneView: ARSCNView!
+    @IBOutlet var saveButton: UIBarButtonItem!
     
     private var hud :MBProgressHUD!
     
-    private var worldDoc :WorldDoc!
+    private var configuration :ARWorldTrackingConfiguration!
     
-    static var storageKey = "box3"
+    private var _worldDoc :WorldDoc!
+    var worldDoc :WorldDoc {
+        get {
+            return _worldDoc
+        }
+        set {
+            _worldDoc = newValue
+            self.storageKeyLabel.text = _worldDoc.data?.name
+            if (_worldDoc.data?.worldMap != nil) {
+                restoreWorldTrackingSession()
+                saveButton.isEnabled = true
+            }
+        }
+    }
     
     private lazy var worldMapStatusLabel :UILabel = {
         
@@ -45,18 +59,6 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
         return label
     }()
     
-    private lazy var saveWorldMapButton :UIButton = {
-        
-        let button = UIButton(type: .custom)
-        button.setTitle("Save", for: .normal)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.tintColor = UIColor.white
-        button.backgroundColor = UIColor(red: 53/255, green: 73/255, blue: 94/255, alpha: 1)
-        button.addTarget(self, action: #selector(saveWorldMap), for: .touchUpInside)
-        return button
-        
-    }()
-    
     static var compileDate :Date {
         let bundleName = Bundle.main.infoDictionary!["CFBundleName"] as? String ?? "Info.plist"
         if let infoPath = Bundle.main.path(forResource: bundleName, ofType: nil),
@@ -73,12 +75,12 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
         return formatter.string(from: compileDate)
     }
     
-    @objc func saveWorldMap() {
+    private func saveWorldMap() {
         
         self.sceneView.session.getCurrentWorldMap { worldMap, error in
             
             if error != nil {
-                print(error?.localizedDescription)
+                print(error?.localizedDescription as Any)
                 return
             }
             
@@ -95,19 +97,28 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
         }
     }
     
-    private func restoreWorldMap() {
-        let configuration = ARWorldTrackingConfiguration()
-        if let data = worldDoc.data {
-            configuration.initialWorldMap = data.worldMap
-            print("loaded worldMap: \(data.name)")
+    private func startWorldTrackingSession() {
+        configuration = ARWorldTrackingConfiguration()
+        resetSession(configuration)
+    }
+    
+    private func restoreWorldTrackingSession() {
+        guard let data = worldDoc.data, let worldMap = worldDoc.data?.worldMap else {
+            fatalError("Could not restore tracking session: Invalid or missing WorldDoc or WorldMap")
         }
-        sceneView.session.run(configuration)
+        configuration = ARWorldTrackingConfiguration()
+        configuration.initialWorldMap = worldMap
+        resetSession(configuration)
+        print("loaded worldMap: \(data.name))")
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        self.sceneView.autoenablesDefaultLighting = true 
+        overrideUserInterfaceStyle = .dark
+        
+        self.sceneView.autoenablesDefaultLighting = true
+        self.sceneView.debugOptions = [ARSCNDebugOptions.showFeaturePoints, ARSCNDebugOptions.showWorldOrigin]
         
         // Set the view's delegate
         sceneView.delegate = self
@@ -123,7 +134,6 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
         registerGestureRecognizers()
         
         setupUI()
-        worldDoc = WorldDoc(name: ViewController.storageKey)
     }
     
     private func registerGestureRecognizers() {
@@ -133,9 +143,15 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
     }
     
     @objc func tapped(recognizer :UITapGestureRecognizer) {
+        let sceneView = recognizer.view as! ARSCNView
+        let touchLocation = recognizer.location(in: sceneView)
+        let hitTestResult = sceneView.hitTest(touchLocation, types: .featurePoint)
         
-        let camera = self.sceneView.session.currentFrame!.camera
-        let boxAnchor = ARAnchor(name: "box-anchor", transform: camera.transform)
+        guard let hitResult = hitTestResult.first else {
+            return
+        }
+        
+        let boxAnchor = ARAnchor(name: "box-anchor", transform: hitResult.worldTransform)
         self.sceneView.session.add(anchor: boxAnchor)
             
     }
@@ -162,10 +178,10 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
         guard let anchorName = anchor.name else {
             return
         }
-        print(anchor.name)
+//        print(anchor.name)
         if (anchorName == "box-anchor") {
             // add a virtual object
-            let box = SCNBox(width: 0.2, height: 0.2, length: 0.2, chamferRadius: 0)
+            let box = SCNBox(width: 0.1, height: 0.1, length: 0.1, chamferRadius: 0.005)
             let material = SCNMaterial()
             material.diffuse.contents = UIColor.purple
             box.materials = [material]
@@ -179,37 +195,44 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
         self.view.addSubview(self.worldMapStatusLabel)
         self.view.addSubview(self.versionLabel)
         self.view.addSubview(self.storageKeyLabel)
-        self.view.addSubview(self.saveWorldMapButton)
         
         //add constraints to labels
         self.worldMapStatusLabel.topAnchor.constraint(equalTo: self.sceneView.topAnchor, constant: 20).isActive = true
         self.worldMapStatusLabel.rightAnchor.constraint(equalTo: self.sceneView.rightAnchor, constant: -20).isActive = true
         self.worldMapStatusLabel.heightAnchor.constraint(equalToConstant: 44).isActive = true
         
-        self.versionLabel.topAnchor.constraint(equalTo: self.sceneView.topAnchor, constant: 20).isActive = true
-        self.versionLabel.leftAnchor.constraint(equalTo: self.sceneView.leftAnchor, constant: 20).isActive = true
-        self.versionLabel.heightAnchor.constraint(equalToConstant: 44).isActive = true
-        
-        self.versionLabel.text = ViewController.prettyCompileDate
-        
-        self.storageKeyLabel.bottomAnchor.constraint(equalTo: self.sceneView.bottomAnchor, constant: -20).isActive = true
+        self.storageKeyLabel.topAnchor.constraint(equalTo: self.sceneView.topAnchor, constant: 20).isActive = true
         self.storageKeyLabel.leftAnchor.constraint(equalTo: self.sceneView.leftAnchor, constant: 20).isActive = true
         self.storageKeyLabel.heightAnchor.constraint(equalToConstant: 44).isActive = true
-        
-        self.storageKeyLabel.text = ViewController.storageKey
-        
-        // add constraints to save world map button
-        self.saveWorldMapButton.rightAnchor.constraint(equalTo: self.sceneView.rightAnchor, constant: -20).isActive = true
-        self.saveWorldMapButton.bottomAnchor.constraint(equalTo: self.sceneView.bottomAnchor, constant: -20).isActive = true
-        self.saveWorldMapButton.widthAnchor.constraint(equalToConstant: 100).isActive = true
-        self.saveWorldMapButton.heightAnchor.constraint(equalToConstant: 44).isActive = true
-        
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
+    @IBAction func addButtonPressed(_ sender: Any) {
+        let alert = UIAlertController(title: "Map Name", message: nil, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+
+        alert.addTextField {
+            $0.placeholder = "Enter map name"
+            $0.addTarget(alert, action: #selector(alert.textDidChangeInLoginAlert), for: .editingChanged)
+        }
+
+        let startAction = UIAlertAction(title: "Start Mapping", style: .default, handler: { action in
+
+            if let name = alert.textFields?.first?.text {
+                self.worldDoc = WorldDoc(name: name)
+                self.startWorldTrackingSession()
+                self.saveButton.isEnabled = true
+            }
+            
+        })
         
-        restoreWorldMap()
+        startAction.isEnabled = false
+        alert.addAction(startAction)
+
+        self.present(alert, animated: true)
+    }
+    
+    @IBAction func saveButtonPressed(_ sender: Any) {
+        self.saveWorldMap()
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -218,5 +241,29 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
         // Pause the view's session
         sceneView.session.pause()
     }
-
+    
+    func resetSession(_ config: ARWorldTrackingConfiguration) {
+        sceneView.session.pause()
+        sceneView.scene.rootNode.enumerateChildNodes { (node, stop) in
+            node.removeFromParentNode()
+        }
+        sceneView.session.run(config, options: [.resetTracking, .removeExistingAnchors])
+    }
 }
+
+/* https://stackoverflow.com/questions/30596851/how-do-i-validate-textfields-in-an-uialertcontroller/39856501
+ */
+extension UIAlertController {
+
+    func isValidName(_ name: String) -> Bool {
+        return name.count > 0
+    }
+
+    @objc func textDidChangeInLoginAlert() {
+        if let name = textFields?[0].text,
+            let action = actions.last {
+            action.isEnabled = isValidName(name)
+        }
+    }
+}
+
