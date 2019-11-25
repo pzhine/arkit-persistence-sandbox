@@ -14,7 +14,6 @@ class WorldDocTableMaster: UITableViewController {
   
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.title = "Load Map"
         worldDocs = WorldDatabase.loadWorldDocs()
     }
     
@@ -49,10 +48,27 @@ class WorldDocTableMaster: UITableViewController {
         }
     }
     
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "showDetail" {
+            if let indexPath = tableView.indexPathForSelectedRow {
+                let object = worldDocs[indexPath.row]
+                let controller = segue.destination as! WorldDocTableDetail
+                controller.detailItem = object
+                controller.title = object.data?.name
+            }
+        }
+    }
+    
+    override func didMove(toParent parent: UIViewController?) {
+      tableView.reloadData()
+    }
+    
+    /*
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let worldDoc = worldDocs[indexPath.row]
         let vc = presentingViewController as! ViewController
         vc.worldDoc = worldDoc
         self.dismiss(animated: true, completion: nil)
     }
+    */
 }

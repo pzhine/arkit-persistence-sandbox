@@ -71,6 +71,12 @@ class WorldDoc: NSObject {
         }
     }
     
+    var codedData: Data {
+        get {
+            return try! NSKeyedArchiver.archivedData(withRootObject: data!, requiringSecureCoding: true)
+        }
+    }
+    
     init(docPath: URL) {
       super.init()
       self.docPath = docPath
@@ -103,17 +109,11 @@ class WorldDoc: NSObject {
     // MARK: CRUD methods
     
     func saveData() {
-        // 1) Do nothing if there is nothing to save
-        guard let data = data else { return }
-      
-        // 2) Build the path of the file to write
+        // Build the path of the file to write
         let dataURL = docPath.appendingPathComponent(Keys.dataFile.rawValue)
         print("WorldDoc saving data to: \(dataURL)")
       
-        // 3) Encode the data using NSCoding
-        let codedData = try! NSKeyedArchiver.archivedData(withRootObject: data, requiringSecureCoding: true)
-      
-        // 4) Write the encoded data to the file.
+       // Write the encoded data to the file.
         do {
             try codedData.write(to: dataURL)
         } catch {
@@ -144,4 +144,92 @@ class WorldDoc: NSObject {
             }
         }
     }
+    
+    // MARK: - API Transactions
+    
+    func upload(onComplete complete: @escaping (_ : ApiResponse) -> Void) {
+        uploadDoc() { (result) in
+            if (result.error != nil) {
+                complete(result)
+                return
+            }
+            self.uploadMap() { (result) in
+                if (result.error != nil) {
+                    complete(result)
+                    return
+                }
+                self.uploadWorld(onComplete: complete)
+            }
+        }
+    }
+    
+    // adds or updates the World on the cloud
+    // sets the `currentVersion` field to the local versionId
+    func uploadWorld(onComplete complete: @escaping (_ : ApiResponse) -> Void) {
+        // build the request
+        let url = URL(string: "http://192.168.1.129:5000/api/worlds")
+        var request = URLRequest(url: url!)
+        request.httpMethod = "POST"
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.addValue("application/json", forHTTPHeaderField: "Accept")
+        
+        // build the data
+        let worldJson = WorldJson(_id: self.data!.worldId, name: self.data!.name, currentVersion: self.data!.versionId!)
+        guard let bodyData = try? ApiClient.encoder.encode(worldJson) else {
+            fatalError("Cannot encode World")
+        }
+        
+        // upload the request
+        ApiClient.uploadTask(request: request, data: bodyData, complete: complete)
+    }
+    
+    // adds or updates the WorldDoc on the cloud
+    func uploadDoc(onComplete complete: @escaping (_ : ApiResponse) -> Void) {
+        // build the request
+        let url = URL(string: "http://192.168.1.129:5000/api/world-docs")
+        var request = URLRequest(url: url!)
+        request.httpMethod = "POST"
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.addValue("application/json", forHTTPHeaderField: "Accept")
+        
+        // build the data
+        let worldDocJson = WorldDocJson(_id: self.data!.versionId!, lastModified: self.data!.lastModified!)
+        guard let bodyData = try? ApiClient.encoder.encode(worldDocJson) else {
+            fatalError("Cannot encode WorldDoc")
+        }
+        
+        // upload the request
+        ApiClient.uploadTask(request: request, data: bodyData, complete: complete)
+    }
+    
+    func uploadMap(onComplete complete: @escaping (_ : ApiResponse) -> Void) {
+        guard let versionId = self.data!.versionId else {
+            fatalError("versionId not set")
+        }
+        
+        // build the request
+        let url = URL(string: "http://192.168.1.129:5000/api/world-docs/\(versionId)/world-map")
+        var request = URLRequest(url: url!)
+        request.httpMethod = "POST"
+        request.addValue("binary/octet-stream", forHTTPHeaderField: "Content-Type")
+        request.addValue("application/json", forHTTPHeaderField: "Accept")
+        
+        // upload the map
+        ApiClient.uploadTask(request: request, data: codedData, complete: complete)
+    }
+}
+
+// MARK: API Data
+
+// https://www.raywenderlich.com/3418439-encoding-and-decoding-in-swift#toc-anchor-007
+
+struct WorldDocJson: Codable {
+    let _id: String
+    let lastModified: Date
+}
+
+struct WorldJson: Codable {
+    let _id: String
+    let name: String
+    let currentVersion: String
 }

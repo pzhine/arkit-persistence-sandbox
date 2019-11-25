@@ -17,6 +17,9 @@
 		DA3E42CF23661C9E001A6C2D /* WorldData.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA3E42CE23661C9E001A6C2D /* WorldData.swift */; };
 		DA3E42D123661EF7001A6C2D /* WorldDoc.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA3E42D023661EF7001A6C2D /* WorldDoc.swift */; };
 		DA3E42D3236627B8001A6C2D /* WorldDatabase.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA3E42D2236627B8001A6C2D /* WorldDatabase.swift */; };
+		DA6DE4342388895000D88A1F /* WorldDocTableDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA6DE4332388895000D88A1F /* WorldDocTableDetail.swift */; };
+		DA6DE43823894B8100D88A1F /* MongoID.m in Sources */ = {isa = PBXBuildFile; fileRef = DA6DE43723894B8100D88A1F /* MongoID.m */; };
+		DA6DE43B23896A4F00D88A1F /* ApiClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA6DE43A23896A4F00D88A1F /* ApiClient.swift */; };
 		DAFF1E7C2367090100C8FB30 /* WorldDocTableMaster.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAFF1E7B2367090100C8FB30 /* WorldDocTableMaster.swift */; };
 /* End PBXBuildFile section */
 
@@ -35,6 +38,10 @@
 		DA3E42CE23661C9E001A6C2D /* WorldData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorldData.swift; sourceTree = "<group>"; };
 		DA3E42D023661EF7001A6C2D /* WorldDoc.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorldDoc.swift; sourceTree = "<group>"; };
 		DA3E42D2236627B8001A6C2D /* WorldDatabase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorldDatabase.swift; sourceTree = "<group>"; };
+		DA6DE4332388895000D88A1F /* WorldDocTableDetail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorldDocTableDetail.swift; sourceTree = "<group>"; };
+		DA6DE43623894B8100D88A1F /* MongoID.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MongoID.h; sourceTree = "<group>"; };
+		DA6DE43723894B8100D88A1F /* MongoID.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MongoID.m; sourceTree = "<group>"; };
+		DA6DE43A23896A4F00D88A1F /* ApiClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApiClient.swift; sourceTree = "<group>"; };
 		DAFF1E7B2367090100C8FB30 /* WorldDocTableMaster.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorldDocTableMaster.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -68,14 +75,14 @@
 		8DE02F0820CB513200BBF854 /* PersistenceAR */ = {
 			isa = PBXGroup;
 			children = (
+				DA6DE43923896A3100D88A1F /* Utilities */,
+				DA6DE43523894B5200D88A1F /* Include */,
 				DAFF1E7A236708C800C8FB30 /* Controllers */,
 				DA3E42CD23661C88001A6C2D /* World */,
 				8DE02F0920CB513200BBF854 /* AppDelegate.swift */,
 				8DE02F0B20CB513200BBF854 /* art.scnassets */,
 				8DE02F0D20CB513200BBF854 /* ViewController.swift */,
 				8DE02F0F20CB513200BBF854 /* Main.storyboard */,
-				8DE02F1E20CC63F400BBF854 /* MBProgressHUD.h */,
-				8DE02F1F20CC63F400BBF854 /* MBProgressHUD.m */,
 				8DE02F1220CB513300BBF854 /* Assets.xcassets */,
 				8DE02F1420CB513300BBF854 /* LaunchScreen.storyboard */,
 				8DE02F1720CB513300BBF854 /* Info.plist */,
@@ -94,10 +101,30 @@
 			path = World;
 			sourceTree = "<group>";
 		};
+		DA6DE43523894B5200D88A1F /* Include */ = {
+			isa = PBXGroup;
+			children = (
+				DA6DE43623894B8100D88A1F /* MongoID.h */,
+				DA6DE43723894B8100D88A1F /* MongoID.m */,
+				8DE02F1E20CC63F400BBF854 /* MBProgressHUD.h */,
+				8DE02F1F20CC63F400BBF854 /* MBProgressHUD.m */,
+			);
+			path = Include;
+			sourceTree = "<group>";
+		};
+		DA6DE43923896A3100D88A1F /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				DA6DE43A23896A4F00D88A1F /* ApiClient.swift */,
+			);
+			path = Utilities;
+			sourceTree = "<group>";
+		};
 		DAFF1E7A236708C800C8FB30 /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
 				DAFF1E7B2367090100C8FB30 /* WorldDocTableMaster.swift */,
+				DA6DE4332388895000D88A1F /* WorldDocTableDetail.swift */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
@@ -175,13 +202,16 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DA6DE43823894B8100D88A1F /* MongoID.m in Sources */,
 				DAFF1E7C2367090100C8FB30 /* WorldDocTableMaster.swift in Sources */,
 				DA3E42CF23661C9E001A6C2D /* WorldData.swift in Sources */,
 				DA3E42D3236627B8001A6C2D /* WorldDatabase.swift in Sources */,
 				DA3E42D123661EF7001A6C2D /* WorldDoc.swift in Sources */,
 				8DE02F0E20CB513200BBF854 /* ViewController.swift in Sources */,
+				DA6DE4342388895000D88A1F /* WorldDocTableDetail.swift in Sources */,
 				8DE02F2020CC63F400BBF854 /* MBProgressHUD.m in Sources */,
 				8DE02F0A20CB513200BBF854 /* AppDelegate.swift in Sources */,
+				DA6DE43B23896A4F00D88A1F /* ApiClient.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -1,0 +1,36 @@
+{
+  "name": "arkit-persistence-sandbox",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:pzhine/arkit-persistence-sandbox.git",
+  "author": "pzhine <paul@hine.works>",
+  "license": "MIT",
+  "scripts": {
+    "start:server": "babel-node --config-file ./babel.config.js server/index.js"
+  },
+  "dependencies": {
+    "@babel/cli": "^7.7.0",
+    "@babel/core": "^7.7.2",
+    "@babel/node": "^7.7.0",
+    "@babel/plugin-transform-runtime": "^7.6.2",
+    "@babel/preset-env": "^7.7.1",
+    "@babel/runtime": "^7.7.2",
+    "babel-eslint": "^10.0.3",
+    "chokidar": "^3.3.0",
+    "compression": "^1.7.4",
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "eslint": "5.16.0",
+    "eslint-config-airbnb-base": "^14.0.0",
+    "eslint-config-prettier": "^6.7.0",
+    "eslint-plugin-import": "^2.18.2",
+    "eslint-plugin-prettier": "^3.1.1",
+    "express": "^4.17.1",
+    "mongoose": "^5.7.12",
+    "mongoose-id-validator": "^0.5.3",
+    "node-graceful-shutdown": "^1.0.3",
+    "prettier": "^1.19.1",
+    "prettier-eslint": "^9.0.1",
+    "stream-buffers": "^3.0.2"
+  }
+}
