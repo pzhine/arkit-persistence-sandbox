@@ -39,12 +39,17 @@ class ApiClient {
         return decoder
     }()
     
-    static func uploadTask(request: URLRequest, data: Data, complete: @escaping (_ : ApiResponse) -> Void) {
-        let configuration = URLSessionConfiguration.default
-        configuration.timeoutIntervalForRequest = 300.0
-        configuration.timeoutIntervalForResource = 300.0
-        let session = URLSession(configuration: configuration)
-        let task = session.uploadTask(with: request, from: data) { data, response, error in
+    static func makeApiRequest(path: String, verb: String, contentType: String = "application/json", accept: String = "application/json") -> URLRequest {
+        let url = URL(string: "http://172.20.10.3:5000/api/\(path)")
+        var request = URLRequest(url: url!)
+        request.httpMethod = verb
+        request.addValue(contentType, forHTTPHeaderField: "Content-Type")
+        request.addValue(accept, forHTTPHeaderField: "Accept")
+        return request
+    }
+    
+    static func handleOnComplete(with complete: @escaping (_ : ApiResponse) -> Void) -> (Data?, URLResponse?, Error?) -> Void {
+        return { (data: Data?, response: URLResponse?, error: Error?) in
             if let error = error {
                 complete(ApiResponse(error: ApiError(message: "URLSession error: \(error)")))
                 return
@@ -67,6 +72,18 @@ class ApiClient {
             }
             complete(responseJson)
         }
+    }
+    
+    static func uploadTask(request: URLRequest, data: Data, complete: @escaping (_ : ApiResponse) -> Void) {
+        let configuration = URLSessionConfiguration.default
+        configuration.timeoutIntervalForRequest = 15.0
+        configuration.timeoutIntervalForResource = 300.0
+        let session = URLSession(configuration: configuration)
+        let task = session.uploadTask(
+            with: request,
+            from: data,
+            completionHandler: handleOnComplete(with: complete)
+        )
         task.resume()
     }
 }

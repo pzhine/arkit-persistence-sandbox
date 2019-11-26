@@ -37,7 +37,7 @@ class WorldDocTableMaster: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        return true
+        return false
     }
     
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
@@ -62,13 +62,4 @@ class WorldDocTableMaster: UITableViewController {
     override func didMove(toParent parent: UIViewController?) {
       tableView.reloadData()
     }
-    
-    /*
-    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let worldDoc = worldDocs[indexPath.row]
-        let vc = presentingViewController as! ViewController
-        vc.worldDoc = worldDoc
-        self.dismiss(animated: true, completion: nil)
-    }
-    */
 }

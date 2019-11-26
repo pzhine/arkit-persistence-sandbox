@@ -167,11 +167,7 @@ class WorldDoc: NSObject {
     // sets the `currentVersion` field to the local versionId
     func uploadWorld(onComplete complete: @escaping (_ : ApiResponse) -> Void) {
         // build the request
-        let url = URL(string: "http://192.168.1.129:5000/api/worlds")
-        var request = URLRequest(url: url!)
-        request.httpMethod = "POST"
-        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.addValue("application/json", forHTTPHeaderField: "Accept")
+        let request = ApiClient.makeApiRequest(path: "worlds", verb: "POST")
         
         // build the data
         let worldJson = WorldJson(_id: self.data!.worldId, name: self.data!.name, currentVersion: self.data!.versionId!)
@@ -186,11 +182,7 @@ class WorldDoc: NSObject {
     // adds or updates the WorldDoc on the cloud
     func uploadDoc(onComplete complete: @escaping (_ : ApiResponse) -> Void) {
         // build the request
-        let url = URL(string: "http://192.168.1.129:5000/api/world-docs")
-        var request = URLRequest(url: url!)
-        request.httpMethod = "POST"
-        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.addValue("application/json", forHTTPHeaderField: "Accept")
+        let request = ApiClient.makeApiRequest(path: "world-docs", verb: "POST")
         
         // build the data
         let worldDocJson = WorldDocJson(_id: self.data!.versionId!, lastModified: self.data!.lastModified!)
@@ -208,11 +200,11 @@ class WorldDoc: NSObject {
         }
         
         // build the request
-        let url = URL(string: "http://192.168.1.129:5000/api/world-docs/\(versionId)/world-map")
-        var request = URLRequest(url: url!)
-        request.httpMethod = "POST"
-        request.addValue("binary/octet-stream", forHTTPHeaderField: "Content-Type")
-        request.addValue("application/json", forHTTPHeaderField: "Accept")
+        let request = ApiClient.makeApiRequest(
+            path: "world-docs/\(versionId)/world-map",
+            verb: "POST",
+            contentType: "binary/octet-stream"
+        )
         
         // upload the map
         ApiClient.uploadTask(request: request, data: codedData, complete: complete)
