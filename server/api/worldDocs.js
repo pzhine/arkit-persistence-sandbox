@@ -6,13 +6,47 @@ import wrap from '../lib/guardedAsync'
 
 const router = express.Router()
 
+const withWorldDoc = wrap(async (req, res, next) => {
+  const worldDoc = await WorldDoc.findOne({ _id: req.params.id })
+  if (!worldDoc) {
+    return next(
+      new ApiError(`WorldDoc not found with _id ${req.params.id}`, 404)
+    )
+  }
+  req.worldDoc = worldDoc
+  return next()
+})
+
+// GET
 router.get(
   '/',
   wrap(async (req, res) => {
-    const worlds = await WorldDoc.find({})
+    const worlds = await WorldDoc.find({}, '-worldMapBinary')
     res.json(worlds).status(200)
   })
 )
+
+router.get(
+  '/:id',
+  wrap(async (req, res, next) => {
+    const worldDoc = await WorldDoc.findOne(
+      { _id: req.params.id },
+      '-worldMapBinary'
+    )
+    if (!worldDoc) {
+      return next(
+        new ApiError(`WorldDoc not found with _id ${req.params.id}`, 404)
+      )
+    }
+    return res.json(worldDoc).status(200)
+  })
+)
+
+router.get('/:id/world-map', withWorldDoc, (req, res) => {
+  return res.send(req.worldDoc.worldMapBinary).status(200)
+})
+
+// POST
 
 router.post(
   '/',
@@ -30,17 +64,6 @@ router.post(
     res.json(await worldDoc.save()).status(200)
   })
 )
-
-const withWorldDoc = wrap(async (req, res, next) => {
-  const worldDoc = await WorldDoc.findOne({ _id: req.params.id })
-  if (!worldDoc) {
-    return next(
-      new ApiError(`WorldDoc not found with _id ${req.params.id}`, 404)
-    )
-  }
-  req.worldDoc = worldDoc
-  return next()
-})
 
 router.post(
   '/:id/world-map',
@@ -65,9 +88,5 @@ router.post(
     return true
   })
 )
-
-router.get('/:id/world-map', withWorldDoc, (req, res) => {
-  return res.send(req.worldDoc.worldMapBinary).status(200)
-})
 
 module.exports = router
