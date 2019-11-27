@@ -15,6 +15,7 @@ class WorldData: NSObject, NSCoding, NSSecureCoding {
     var worldMap: ARWorldMap?
     var lastModified :Date?
     var versionId :String?
+    var needsUpdate: Bool = false
     
     enum Keys: String {
         case name = "name"
@@ -22,6 +23,7 @@ class WorldData: NSObject, NSCoding, NSSecureCoding {
         case lastModified = "lastModified"
         case versionId = "versionId"
         case worldId = "worldId"
+        case needsUpdate = "needsUpdate"
     }
     
     init(name: String) {
@@ -38,6 +40,7 @@ class WorldData: NSObject, NSCoding, NSSecureCoding {
         coder.encode(lastModified, forKey: Keys.lastModified.rawValue)
         coder.encode(versionId, forKey: Keys.versionId.rawValue)
         coder.encode(worldId, forKey: Keys.worldId.rawValue)
+        coder.encode(needsUpdate, forKey: Keys.needsUpdate.rawValue)
     }
     
     required convenience init?(coder: NSCoder) {
@@ -46,12 +49,14 @@ class WorldData: NSObject, NSCoding, NSSecureCoding {
         let versionId = coder.decodeObject(of: NSString.self, forKey: Keys.versionId.rawValue) as String? ?? ""
         let worldId = coder.decodeObject(of: NSString.self, forKey: Keys.worldId.rawValue) as String? ?? ""
         let worldMap = coder.decodeObject(of: ARWorldMap.self, forKey: Keys.worldMap.rawValue) as ARWorldMap?
+        let needsUpdate = coder.decodeBool(forKey: Keys.needsUpdate.rawValue)
         
         self.init(name: name)
         self.worldMap = worldMap
         self.lastModified = lastModified
         self.versionId = versionId
         self.worldId = worldId
+        self.needsUpdate = needsUpdate
     }
     
     static var supportsSecureCoding: Bool {

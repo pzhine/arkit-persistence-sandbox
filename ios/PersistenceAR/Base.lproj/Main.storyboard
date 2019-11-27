@@ -101,7 +101,42 @@
                                 </connections>
                             </button>
                         </barButtonItem>
+                        <barButtonItem key="rightBarButtonItem" style="plain" id="RfJ-Bu-IxF">
+                            <view key="customView" contentMode="scaleToFill" id="iHV-ol-USR">
+                                <rect key="frame" x="276" y="7" width="83" height="42"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <subviews>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="right" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="haO-3M-ABv">
+                                        <rect key="frame" x="0.0" y="0.0" width="83" height="42"/>
+                                        <state key="normal" image="arrow.clockwise.icloud" catalog="system">
+                                            <preferredSymbolConfiguration key="preferredSymbolConfiguration" scale="large"/>
+                                        </state>
+                                        <connections>
+                                            <action selector="refreshButtonPressed:" destination="I5n-mv-KyP" eventType="touchUpInside" id="EID-Uk-Qmb"/>
+                                        </connections>
+                                    </button>
+                                    <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="medium" translatesAutoresizingMaskIntoConstraints="NO" id="jG1-Qg-elR">
+                                        <rect key="frame" x="58" y="11" width="20" height="20"/>
+                                    </activityIndicatorView>
+                                </subviews>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <constraints>
+                                    <constraint firstItem="haO-3M-ABv" firstAttribute="leading" secondItem="iHV-ol-USR" secondAttribute="leading" id="7fK-N1-EWW"/>
+                                    <constraint firstAttribute="trailing" secondItem="jG1-Qg-elR" secondAttribute="trailing" constant="5" id="9ZR-Um-WLx"/>
+                                    <constraint firstItem="jG1-Qg-elR" firstAttribute="centerY" secondItem="haO-3M-ABv" secondAttribute="centerY" id="Dja-2J-AKu"/>
+                                    <constraint firstItem="haO-3M-ABv" firstAttribute="top" secondItem="iHV-ol-USR" secondAttribute="top" id="EfD-wu-aQ5"/>
+                                    <constraint firstAttribute="trailing" secondItem="haO-3M-ABv" secondAttribute="trailing" id="ovp-Dh-PV8"/>
+                                    <constraint firstAttribute="bottom" secondItem="haO-3M-ABv" secondAttribute="bottom" id="qE7-aQ-Oux"/>
+                                </constraints>
+                            </view>
+                        </barButtonItem>
                     </navigationItem>
+                    <connections>
+                        <outlet property="activityIndicator" destination="jG1-Qg-elR" id="C91-In-fHH"/>
+                        <outlet property="cancelButton" destination="3re-L9-D6I" id="oPb-hz-tkW"/>
+                        <outlet property="refreshButton" destination="haO-3M-ABv" id="rBU-6A-fWG"/>
+                        <outlet property="tableView" destination="M3b-0I-OZh" id="vub-sv-9Nl"/>
+                    </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Y3n-rc-fMJ" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
@@ -279,6 +314,7 @@
         </scene>
     </scenes>
     <resources>
+        <image name="arrow.clockwise.icloud" catalog="system" width="64" height="44"/>
         <image name="icloud.and.arrow.down" catalog="system" width="64" height="56"/>
         <image name="icloud.and.arrow.up" catalog="system" width="64" height="52"/>
     </resources>

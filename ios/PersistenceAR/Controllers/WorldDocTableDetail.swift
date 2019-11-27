@@ -47,10 +47,20 @@ class WorldDocTableDetail: UIViewController {
             fatalError("data not initialized")
         }
         
+        if (data.needsUpdate) {
+            loadButton.isEnabled = false
+            uploadButton.isEnabled = false
+        }
+        
         worldIdLabel.text = data.worldId
-        versionIdLabel.text = data.versionId
-        lastModifiedLabel.text = dateFormatter.string(from: (data.lastModified)!)
         nameField.text = data.name
+        versionIdLabel.text = data.versionId
+        
+        guard let lastModified = data.lastModified else {
+            lastModifiedLabel.text = "unknown"
+            return
+        }
+        lastModifiedLabel.text = dateFormatter.string(from: lastModified)
 
     }
     

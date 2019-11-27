@@ -8,7 +8,7 @@ router.get(
   '/',
   wrap(async (req, res) => {
     const worlds = await World.find({})
-    res.json(worlds).status(200)
+    res.json({ worlds }).status(200)
   })
 )
 

@@ -10,8 +10,12 @@ import Foundation
 import UIKit
 
 class WorldDocTableMaster: UITableViewController {
+    @IBOutlet var refreshButton: UIButton!
+    @IBOutlet var activityIndicator: UIActivityIndicatorView!
+    @IBOutlet var cancelButton: UIButton!
+    
     var worldDocs: [WorldDoc] = []
-  
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         worldDocs = WorldDatabase.loadWorldDocs()
@@ -62,4 +66,37 @@ class WorldDocTableMaster: UITableViewController {
     override func didMove(toParent parent: UIViewController?) {
       tableView.reloadData()
     }
+    
+    @IBAction func refreshButtonPressed(_ sender: Any) {
+        showLoading(true)
+        WorldDatabase.updateFromCloud(localWorldDocs: self.worldDocs) { (response, updatedWorldDocs) in
+            DispatchQueue.main.async {
+                self.showLoading(false)
+                if let error = response.error {
+                    print(error)
+                    let alert = UIAlertController(title: "Download Error", message: error.message, preferredStyle: .alert)
+                    alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: nil))
+                    self.present(alert, animated: true)
+                    return
+                }
+                
+                // success
+                self.worldDocs = updatedWorldDocs!
+                self.tableView.reloadData()
+            }
+        }
+    }
+    
+    func showLoading(_ isLoading: Bool) {
+        refreshButton.isHidden = isLoading
+        cancelButton.isEnabled = !isLoading
+        self.tableView.isUserInteractionEnabled = !isLoading
+        
+        if isLoading {
+            activityIndicator.startAnimating()
+        } else {
+            activityIndicator.stopAnimating()
+        }
+    }
+    
 }

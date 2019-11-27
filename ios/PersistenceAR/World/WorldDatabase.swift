@@ -52,4 +52,41 @@ class WorldDatabase: NSObject {
             .filter { $0.pathExtension == EXT }
             .map { WorldDoc(docPath: $0) }
     }
+    
+    // MARK: Api Client
+    
+    static func updateFromCloud(localWorldDocs: [WorldDoc], onComplete complete: @escaping (_ apiResponse: ApiResponse, _ worldDocs: [WorldDoc]?) -> Void) {
+        // get fresh list of API Worlds from the server
+        let request = ApiClient.makeApiRequest(path: "worlds", verb: "GET")
+        ApiClient.dataTask(request: request) { (apiResponse) in
+            if let error = apiResponse.error {
+                // error
+                print("updateFromCloud: error", error)
+                complete(apiResponse, nil)
+                return
+            }
+            // success
+            guard let apiWorlds = apiResponse.worlds else {
+                fatalError("response is missing worlds array")
+            }
+            // loop over ApiWorlds in response and compare to corresponding WorldDoc in localWorldDocs
+            let updatedLocalWorldDocs = apiWorlds.map { apiWorld -> WorldDoc in
+                // find WorldDoc with corresponding ID
+                var localWorldDoc = localWorldDocs.first { worldDoc in
+                    return worldDoc.data?.worldId == apiWorld._id
+                }
+                // if not found, create it
+                if (localWorldDoc == nil) {
+                    localWorldDoc = WorldDoc(name: apiWorld.name)
+                    localWorldDoc!.data!.worldId = apiWorld._id
+                }
+                // update current version and flag for update
+                localWorldDoc!.data!.versionId = apiWorld.currentVersion
+                localWorldDoc!.data!.needsUpdate = true
+                localWorldDoc!.saveData()
+                return localWorldDoc!
+            }
+            complete(apiResponse, updatedLocalWorldDocs)
+        }
+    }
 }

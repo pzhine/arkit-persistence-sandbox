@@ -10,6 +10,13 @@ import Foundation
 
 // MARK: API types
 
+// World
+struct ApiWorld: Codable {
+    let _id: String
+    let currentVersion: String
+    let name: String
+}
+
 // Generic ApiError
 struct ApiError: Codable {
     let message: String
@@ -17,11 +24,13 @@ struct ApiError: Codable {
 
 // Generic API Response
 struct ApiResponse: Codable {
-//    init(error: ApiError) {
-//        error = error
-//    }
     var error: ApiError?
+    
+    // for uploads
     var bytesReceived: Int32?
+    
+    // get: worlds
+    var worlds: [ApiWorld]?
 }
 
 // MARK: API Client
@@ -40,7 +49,7 @@ class ApiClient {
     }()
     
     static func makeApiRequest(path: String, verb: String, contentType: String = "application/json", accept: String = "application/json") -> URLRequest {
-        let url = URL(string: "http://172.20.10.3:5000/api/\(path)")
+        let url = URL(string: "http://192.168.1.129:5000/api/\(path)")
         var request = URLRequest(url: url!)
         request.httpMethod = verb
         request.addValue(contentType, forHTTPHeaderField: "Content-Type")
@@ -82,6 +91,18 @@ class ApiClient {
         let task = session.uploadTask(
             with: request,
             from: data,
+            completionHandler: handleOnComplete(with: complete)
+        )
+        task.resume()
+    }
+    
+    static func dataTask(request: URLRequest, complete: @escaping (_ : ApiResponse) -> Void) {
+        let configuration = URLSessionConfiguration.default
+        configuration.timeoutIntervalForRequest = 15.0
+        configuration.timeoutIntervalForResource = 300.0
+        let session = URLSession(configuration: configuration)
+        let task = session.dataTask(
+            with: request,
             completionHandler: handleOnComplete(with: complete)
         )
         task.resume()
