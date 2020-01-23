@@ -1,28 +1,31 @@
 //
 //  ApiClient.swift
-//  PersistenceAR
+//  WorldAsSupport
 //
 //  Created by Paul on 11/23/19.
-//  Copyright © 2019 Mohammad Azam. All rights reserved.
+//  Copyright © 2019 UPF. All rights reserved.
 //
 
 import Foundation
 
 // MARK: API types
+// https://www.raywenderlich.com/3418439-encoding-and-decoding-in-swift#toc-anchor-007
 
-// World
+struct ApiWorldDoc: Codable {
+    let _id: String
+    let lastModified: Date
+}
+
 struct ApiWorld: Codable {
     let _id: String
     let currentVersion: String
     let name: String
 }
 
-// Generic ApiError
 struct ApiError: Codable {
     let message: String
 }
 
-// Generic API Response
 struct ApiResponse: Codable {
     var error: ApiError?
     
@@ -31,6 +34,9 @@ struct ApiResponse: Codable {
     
     // get: worlds
     var worlds: [ApiWorld]?
+    
+    // get: world-docs/:id
+    var worldDoc: ApiWorldDoc?
 }
 
 // MARK: API Client
@@ -105,6 +111,17 @@ class ApiClient {
             with: request,
             completionHandler: handleOnComplete(with: complete)
         )
+        task.resume()
+    }
+    
+    static func downloadTask(request: URLRequest, complete: @escaping (_ : URL?, _ : Error?) -> Void) {
+        let configuration = URLSessionConfiguration.default
+        configuration.timeoutIntervalForRequest = 15.0
+        configuration.timeoutIntervalForResource = 300.0
+        let session = URLSession(configuration: configuration)
+        let task = session.downloadTask(with: request) { url, urlResponse, error in
+            complete(url, error)
+        }
         task.resume()
     }
 }

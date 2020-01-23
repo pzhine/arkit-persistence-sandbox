@@ -38,7 +38,7 @@ router.get(
         new ApiError(`WorldDoc not found with _id ${req.params.id}`, 404)
       )
     }
-    return res.json(worldDoc).status(200)
+    return res.json({ worldDoc }).status(200)
   })
 )
 

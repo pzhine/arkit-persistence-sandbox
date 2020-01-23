@@ -35,15 +35,15 @@ class WorldDoc: NSObject {
     
     var data: WorldData? {
         get {
-            // 1) return the value if already loaded
+            // return the value if already loaded
             if _data != nil { return _data }
           
-            // 2) read the saved file as 'Data'
+            // read the saved file as 'Data'
             let dataURL = docPath.appendingPathComponent(Keys.dataFile.rawValue)
             print("WorldDoc loading data from: \(dataURL)")
             guard let codedData = try? Data(contentsOf: dataURL) else { return nil }
     
-            // 3) unarchive the object from the Data object
+            // unarchive the object from the Data object
             _data = try! NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(codedData) as? WorldData
 
             return _data
@@ -75,6 +75,10 @@ class WorldDoc: NSObject {
         get {
             return try! NSKeyedArchiver.archivedData(withRootObject: data!, requiringSecureCoding: true)
         }
+    }
+    
+    func serializeMap(_ worldMap: ARWorldMap) -> Data {
+        return try! NSKeyedArchiver.archivedData(withRootObject: worldMap, requiringSecureCoding: true)
     }
     
     init(docPath: URL) {
@@ -145,7 +149,7 @@ class WorldDoc: NSObject {
         }
     }
     
-    // MARK: - API Transactions
+    // MARK: - API Upload Actions
     
     func upload(onComplete complete: @escaping (_ : ApiResponse) -> Void) {
         uploadDoc() { (result) in
@@ -170,7 +174,7 @@ class WorldDoc: NSObject {
         let request = ApiClient.makeApiRequest(path: "worlds", verb: "POST")
         
         // build the data
-        let worldJson = WorldJson(_id: self.data!.worldId, name: self.data!.name, currentVersion: self.data!.versionId!)
+        let worldJson = ApiWorld(_id: self.data!.worldId, currentVersion: self.data!.versionId!, name: self.data!.name)
         guard let bodyData = try? ApiClient.encoder.encode(worldJson) else {
             fatalError("Cannot encode World")
         }
@@ -185,7 +189,7 @@ class WorldDoc: NSObject {
         let request = ApiClient.makeApiRequest(path: "world-docs", verb: "POST")
         
         // build the data
-        let worldDocJson = WorldDocJson(_id: self.data!.versionId!, lastModified: self.data!.lastModified!)
+        let worldDocJson = ApiWorldDoc(_id: self.data!.versionId!, lastModified: self.data!.lastModified!)
         guard let bodyData = try? ApiClient.encoder.encode(worldDocJson) else {
             fatalError("Cannot encode WorldDoc")
         }
@@ -209,19 +213,61 @@ class WorldDoc: NSObject {
         // upload the map
         ApiClient.uploadTask(request: request, data: codedData, complete: complete)
     }
-}
+    
+    // MARK: - API Download Actions
+    
+    func downloadDoc(onComplete complete: @escaping (_ : ApiResponse) -> Void) {
+        guard let data = data else {
+            fatalError("data not initialized")
+        }
+        let request = ApiClient.makeApiRequest(path: "world-docs/\(data.versionId!)", verb: "GET")
+        ApiClient.dataTask(request: request) { (apiResponse) in
+            if let error = apiResponse.error {
+                // error
+                print("downloadDoc: error", error)
+                complete(apiResponse)
+                return
+            }
+            guard let worldDoc = apiResponse.worldDoc else {
+                fatalError("response missing worldDoc")
+            }
+            data.lastModified = worldDoc.lastModified
+            data.needsUpdate = false
+            complete(apiResponse)
+        }
+    }
+    
+    func downloadWorldData(onComplete complete: @escaping (_ : Error?) -> Void) {
+        guard let data = data else {
+            fatalError("data not initialized")
+        }
+        let request = ApiClient.makeApiRequest(path: "world-docs/\(data.versionId!)/world-map", verb: "GET")
+        ApiClient.downloadTask(request: request) { (url, error) in
+            if let error = error {
+                // error
+                print("downloadWorldData: error", error)
+                complete(error)
+                return
+            }
+            guard let dataURL = url else {
+                fatalError("response missing temp file URL")
+            }
+            
+            // read the data from the temp file
+            print("WorldDoc loading data from: \(dataURL)")
+            guard let codedData = try? Data(contentsOf: dataURL) else {
+                fatalError("cannot load data from \(dataURL)")
+            }
+            
+            // unarchive the object from the Data object
+            self.data = try! NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(codedData) as? WorldData
 
-// MARK: API Data
-
-// https://www.raywenderlich.com/3418439-encoding-and-decoding-in-swift#toc-anchor-007
-
-struct WorldDocJson: Codable {
-    let _id: String
-    let lastModified: Date
-}
-
-struct WorldJson: Codable {
-    let _id: String
-    let name: String
-    let currentVersion: String
+            data.needsUpdate = false
+            
+            // save the new data to the permanent file location
+            self.saveData()
+            
+            complete(nil)
+        }
+    }
 }

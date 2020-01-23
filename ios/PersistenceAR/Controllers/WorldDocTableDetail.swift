@@ -1,9 +1,9 @@
 //
 //  WorldDocTableDetail.swift
-//  PersistenceAR
+//  WorldAsSupport
 //
 //  Created by Paul on 11/22/19.
-//  Copyright © 2019 Mohammad Azam. All rights reserved.
+//  Copyright © 2019 UPF. All rights reserved.
 //
 
 import Foundation
@@ -66,10 +66,10 @@ class WorldDocTableDetail: UIViewController {
     
     func enableActions(_ enabled: Bool) {
         nameField.isEnabled = enabled
-        uploadButton.isEnabled = enabled
+        uploadButton.isEnabled = enabled && !self.detailItem!.data!.needsUpdate
         downloadButton.isEnabled = enabled
         navigationItem.hidesBackButton = !enabled
-        loadButton.isEnabled = enabled
+        loadButton.isEnabled = enabled && !self.detailItem!.data!.needsUpdate
     }
     
     @IBAction func nameFieldChanged(_ sender: UITextField) {
@@ -88,9 +88,10 @@ class WorldDocTableDetail: UIViewController {
         uploadActivityIndicator.startAnimating()
         enableActions(false)
         detailItem!.upload() { (result) in
-            guard let error = result.error else {
+            if let error = result.error {
                 DispatchQueue.main.async {
-                    let alert = UIAlertController(title: "Upload Complete", message: nil, preferredStyle: .alert)
+                    print(error)
+                    let alert = UIAlertController(title: "Upload Error", message: error.message, preferredStyle: .alert)
                     alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: nil))
                     self.present(alert, animated: true)
                     self.uploadActivityIndicator.stopAnimating()
@@ -99,8 +100,7 @@ class WorldDocTableDetail: UIViewController {
                 return
             }
             DispatchQueue.main.async {
-                print(error)
-                let alert = UIAlertController(title: "Upload Error", message: error.message, preferredStyle: .alert)
+                let alert = UIAlertController(title: "Upload Complete", message: nil, preferredStyle: .alert)
                 alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: nil))
                 self.present(alert, animated: true)
                 self.uploadActivityIndicator.stopAnimating()
@@ -112,6 +112,28 @@ class WorldDocTableDetail: UIViewController {
     @IBAction func downloadButtonPressed(_ sender: UIButton) {
         downloadActivityIndicator.startAnimating()
         enableActions(false)
+        detailItem!.downloadWorldData() { (error) in
+            if let error = error {
+                DispatchQueue.main.async {
+                    print(error)
+                    let alert = UIAlertController(title: "Download Error", message: error.localizedDescription, preferredStyle: .alert)
+                    alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: nil))
+                    self.present(alert, animated: true)
+                    self.downloadActivityIndicator.stopAnimating()
+                    self.enableActions(true)
+                }
+                return
+            }
+           
+            DispatchQueue.main.async {
+                let alert = UIAlertController(title: "Download Complete", message: nil, preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: nil))
+                self.present(alert, animated: true)
+                self.downloadActivityIndicator.stopAnimating()
+                self.enableActions(true)
+                self.configureView()
+            }
+        }
     }
     
 }
