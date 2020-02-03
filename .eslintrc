@@ -1,0 +1,29 @@
+{
+  "extends": ["eslint-config-airbnb-base", "eslint-config-prettier"],
+  "plugins": ["eslint-plugin-prettier"],
+  "parser": "babel-eslint",
+  "env": {
+    "browser": false
+  },
+  "rules": {
+    "no-return-assign": ["error", "except-parens"], // Default option
+    "no-console": "off", // Console logs are too useful and are removed in prod anyway
+    "global-require": "off", // Useful for images, assets, etc
+    "import/no-dynamic-require": "off", // Useful for images, assets, etc
+    "import/prefer-default-export": "off", // Often this is not organizationally optimal
+    "no-shadow": "off", // Shadowing is a nice language feature. Naming is hard.
+    "no-underscore-dangle": "off", // It's classic pattern to denote private props.
+    "prefer-destructuring": "off", // This forces awkward syntax sometimes
+    "no-case-declarations": "off", // Fallthrough is useful in case/default clauses
+    "no-param-reassign": ["error", { "props": false }], // Useful for mutating reduce accumulators, ex.
+    "prettier/prettier": [
+      "error",
+      {
+        "printWidth": 80, // Easy to read
+        "semi": false, // Almost always unecessary
+        "singleQuote": true, // Easy to read
+        "trailingComma": "es5" // Helps simplify diffs
+      }
+    ]
+  }
+}

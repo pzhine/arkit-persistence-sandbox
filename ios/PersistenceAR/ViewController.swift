@@ -86,7 +86,13 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
             
             if let map = worldMap {
                 
+                // update the map
                 self.worldDoc.data?.worldMap = map
+                
+                // Update versionId and lastModified
+                self.worldDoc.data?.lastModified = Date()
+                self.worldDoc.data?.versionId = MongoID.string(with: MongoID.id())
+                
                 self.worldDoc.saveData()
                 
                 self.hud = MBProgressHUD.showAdded(to: self.view, animated: true)
